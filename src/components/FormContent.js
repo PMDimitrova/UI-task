@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 
 import localStorageServices from '../utils/localStorageHandler';
+import { orderOfChoicesOptions } from '../utils/enums';
 import TypeFieldContent from './TypeFieldContent';
 import makePostRequest from '../utils/services';
 import OrderDropdown from './OrderDropdown';
@@ -12,12 +13,6 @@ import FormLine from './FormLine';
 import Input from './Input';
 
 // TODO: Add Global State Manager, so that we can avoid prop drilling; although it's not present at the moment
-
-const orderOfChoicesOptions = {
-  AZ: 'Alphabetical order',
-  ZA: 'Reverse alphabetical order',
-  user: 'As per user`s input order',
-};
 
 const FormContent = () => {
   const [choices, setChoices] = useState([]);

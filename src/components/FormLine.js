@@ -1,7 +1,5 @@
 import styled from 'styled-components';
 
-//TODO: Handle error with warning? and border
-
 const FormLine = ({ fieldLabel, content, shouldStretchDown }) => {
   return (
     <LineWrap $shouldStretchDown={shouldStretchDown}>

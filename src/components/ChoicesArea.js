@@ -20,7 +20,7 @@ const ChoicesArea = ({ choices, setChoices, setShouldRetriggerOrder }) => {
 
   const onAddButtonClick = () => {
     //it would be the best if we have some sort of unification if these choices should be PascalCase, with Capital letter, ALLCAPS etc...
-    if (choices.length >= 50) {
+    if (choices.length === 50) {
       setShouldShowFullError(true);
     } else {
       if (!choices.includes(typingChoice) && typingChoice.trim()) {
