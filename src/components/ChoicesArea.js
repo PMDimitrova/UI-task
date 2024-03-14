@@ -3,12 +3,9 @@ import { useState } from 'react';
 
 import Input from './Input';
 
-// TODO: the dropdown in OrderDropdown should trigger another order of the items here
-
 // BONUS: The database that stores this does not allow individual choices in the list of choices to be longer than 40 characters. Add client-side validation such that excess characters are visually distinct if the choice is longer than 40 characters. I.e., if a user enters the word that is longer than 40 characters, the characters above 40 would be highlighted in red.
 
-const ChoicesArea = () => {
-  const [choices, setChoices] = useState([]);
+const ChoicesArea = ({ choices, setChoices, setShouldRetriggerOrder }) => {
   const [typingChoice, setTypingChoice] = useState('');
   const [shouldShowInputError, setShouldShowInputError] = useState(false);
   const [shouldShowFullError, setShouldShowFullError] = useState(false);
@@ -28,6 +25,7 @@ const ChoicesArea = () => {
       if (!choices.includes(typingChoice) && typingChoice.trim()) {
         setChoices([...choices, typingChoice.trim()]);
         setTypingChoice('');
+        setShouldRetriggerOrder(true); //this would make the new entry to fall into the right place, if an order is chosen
       } else {
         if (typingChoice.trim()) {
           setShouldShowInputError(true);

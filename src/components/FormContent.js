@@ -1,20 +1,70 @@
 import { Field, Form } from 'react-final-form';
 import styled from 'styled-components';
+import { useEffect } from 'react';
+import { useState } from 'react';
 
 import TypeFieldContent from './TypeFieldContent';
 import OrderDropdown from './OrderDropdown';
+import makePostRequest from '../services';
 import ChoicesArea from './ChoicesArea';
 import FormLine from './FormLine';
 import Input from './Input';
 
-// TODO: globally/LOCAL STORAGE: For the purpose of the demo, you may want the form to keep its values after the form is submitted. This helps demonstrate the prior requirement (that the default value is added).
+// TODO: Add Global State, so that we can avoid prop drilling; although it's not present at the moment
+
+const orderOfChoicesOptions = {
+  AZ: 'Alphabetical order',
+  ZA: 'Reverse alphabetical order',
+  user: 'As per user`s input order',
+};
 
 const FormContent = () => {
-  const onFormSubmit = props => {
-    // TODO: get all the data and send it as JSON
-    console.log('props: ', props);
-    console.log('form submitted ');
+  const [choices, setChoices] = useState([]);
+  const [checkboxMarked, setCheckboxMarked] = useState(false);
+  const [orderOfChoices, setOrderOfChoices] = useState(orderOfChoicesOptions.user);
+  const [shouldRetriggerOrder, setShouldRetriggerOrder] = useState(false);
+
+  const onFormSubmit = ({ formLabelField, defaultValueField }) => {
+    if (!choices.includes(defaultValueField)) {
+      choices.push(defaultValueField);
+      setShouldRetriggerOrder(true);
+    }
+
+    const shouldDisplayOptionsAlphabetically = orderOfChoices === orderOfChoicesOptions.AZ;
+
+    const dataForSending = {
+      label: formLabelField,
+      required: checkboxMarked,
+      choices: [...choices],
+      displayAlpha: shouldDisplayOptionsAlphabetically,
+      default: defaultValueField,
+    };
+
+    console.log('dataForSending: ', dataForSending);
+
+    makePostRequest(dataForSending);
   };
+
+  const clearOptions = () => {
+    setChoices([]);
+  };
+
+  useEffect(() => {
+    // If the user changes it to order of input, after they're sorted one time, we cannot reverse this;
+    // I think it would be overkill to store exactly the way the user has entered them
+
+    if (!(orderOfChoices === orderOfChoicesOptions.user)) {
+      const newOrderedOptions = [...choices];
+      newOrderedOptions.sort();
+
+      if (orderOfChoices === orderOfChoicesOptions.ZA) {
+        newOrderedOptions.reverse();
+      }
+
+      setChoices([...newOrderedOptions]);
+      setShouldRetriggerOrder(false);
+    }
+  }, [orderOfChoices, shouldRetriggerOrder]);
 
   return (
     <Wrap>
@@ -28,12 +78,12 @@ const FormContent = () => {
           }
 
           if (!defaultValueField) {
-            errors.defaultValueField = 'Required'; // TODO: required if not in choices field
+            errors.defaultValueField = 'Required';
           }
 
           return errors;
         }}
-        render={({ handleSubmit, invalid }) => (
+        render={({ handleSubmit, invalid, form }) => (
           <StyledForm onSubmit={handleSubmit} noValidate>
             <Field
               name="formLabelField"
@@ -58,11 +108,9 @@ const FormContent = () => {
               }}
             />
 
-            <Field
-              name="typeField"
-              render={() => {
-                return <FormLine fieldLabel="Type" content={<TypeFieldContent />} />;
-              }}
+            <FormLine
+              fieldLabel="Type"
+              content={<TypeFieldContent checkboxMarked={checkboxMarked} setCheckboxMarked={setCheckboxMarked} />}
             />
 
             <Field
@@ -88,39 +136,44 @@ const FormContent = () => {
               }}
             />
 
-            <Field
-              name="choicesField"
-              render={() => {
-                return (
-                  <FormLine
-                    fieldLabel="Choices"
-                    content={
-                      <div>
-                        <ChoicesArea />
-                        <DisclaimerWrap>You can remove option by clicking on it</DisclaimerWrap>
-                      </div>
-                    }
-                    shouldStretchDown
+            <FormLine
+              fieldLabel="Choices"
+              content={
+                <div>
+                  <ChoicesArea
+                    choices={choices}
+                    setChoices={setChoices}
+                    setShouldRetriggerOrder={setShouldRetriggerOrder}
                   />
-                );
-              }}
+                  <DisclaimerWrap>You can remove option by clicking on it</DisclaimerWrap>
+                </div>
+              }
+              shouldStretchDown
             />
 
-            <Field
-              name="orderField"
-              render={() => {
-                return <FormLine fieldLabel="Order" content={<OrderDropdown />} />;
-              }}
+            <FormLine
+              fieldLabel="Order"
+              content={<OrderDropdown orderOfChoices={orderOfChoices} setOrderOfChoices={setOrderOfChoices} />}
             />
 
             <FormLine
               content={
                 <ButtonsWrap>
-                  <SubmitButton type="submit" $isDisabled={invalid} disabled={invalid}>
+                  <SubmitButton type="submit" $isDisabled={invalid || !choices.length} disabled={invalid}>
                     Save changes
                   </SubmitButton>
+
                   <div>&nbsp;Or&nbsp;</div>
-                  <CancelButton type="button">Cancel</CancelButton>
+
+                  <CancelButton
+                    type="button"
+                    onClick={() => {
+                      form.reset();
+                      clearOptions();
+                    }}
+                  >
+                    Cancel
+                  </CancelButton>
                 </ButtonsWrap>
               }
             />

@@ -11,11 +11,11 @@ Checkbox:
   the end user be required to pick a choice before they could submit the form.
   */
 
-const TypeFieldContent = () => (
+const TypeFieldContent = ({ checkboxMarked, setCheckboxMarked }) => (
   <Wrap>
     <TextWrap>Multi-select</TextWrap>
 
-    <input type="checkbox" />
+    <input type="checkbox" checked={checkboxMarked} onChange={() => setCheckboxMarked(!checkboxMarked)} />
     <SubTextWrap>A Value is required</SubTextWrap>
   </Wrap>
 );
