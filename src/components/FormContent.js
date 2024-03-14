@@ -114,7 +114,7 @@ const FormContent = () => {
           <StyledForm onSubmit={handleSubmit} noValidate>
             <Field
               name="formLabelField"
-              render={({ input }) => {
+              render={({ input, meta }) => {
                 return (
                   <FormLine
                     fieldLabel="Label"
@@ -122,6 +122,8 @@ const FormContent = () => {
                       <Input
                         placeholder="Enter the new form's Label"
                         shouldStretchHorizontally
+                        error={meta.touched && meta.error}
+                        onBlur={event => input.onBlur(event)}
                         finalFormProps={{
                           ...input,
                           preSavedValue: storedLabel,
@@ -145,13 +147,15 @@ const FormContent = () => {
 
             <Field
               name="defaultValueField"
-              render={({ input }) => {
+              render={({ input, meta }) => {
                 return (
                   <FormLine
                     fieldLabel="Default Value"
                     content={
                       <Input
                         placeholder="Default value of the form"
+                        error={meta.touched && meta.error}
+                        onBlur={event => input.onBlur(event)}
                         shouldStretchHorizontally
                         finalFormProps={{
                           ...input,
