@@ -126,8 +126,9 @@ const FormContent = () => {
                           ...input,
                           preSavedValue: storedLabel,
                           onChange: e => {
-                            localStorageServices.saveToLocalStorage('label', e.target.value.trim());
                             input.onChange(e);
+                            localStorageServices.saveToLocalStorage('label', e.target.value.trim());
+                            setStoredLabel(undefined);
                           },
                         }}
                       />
@@ -158,6 +159,7 @@ const FormContent = () => {
                           onChange: e => {
                             input.onChange(e);
                             localStorageServices.saveToLocalStorage('default', e.target.value.trim());
+                            setStoredDefaultValue(undefined);
                           },
                         }}
                       />
