@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 const Input = ({ placeholder, value, onChange, finalFormProps, shouldStretchHorizontally }) => {
-  const val = value || finalFormProps?.value || '';
+  const val = value || finalFormProps?.value || finalFormProps?.preSavedValue || '';
   const inputOnChange = onChange || finalFormProps?.onChange;
 
   return (

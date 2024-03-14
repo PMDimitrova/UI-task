@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 
+import localStorageServices from '../utils/localStorageHandler';
+
 /*
 Multi-select:
   In the full version of this spec, that is a drop-down. 
@@ -15,7 +17,14 @@ const TypeFieldContent = ({ checkboxMarked, setCheckboxMarked }) => (
   <Wrap>
     <TextWrap>Multi-select</TextWrap>
 
-    <input type="checkbox" checked={checkboxMarked} onChange={() => setCheckboxMarked(!checkboxMarked)} />
+    <input
+      type="checkbox"
+      checked={checkboxMarked}
+      onChange={() => {
+        setCheckboxMarked(!checkboxMarked);
+        localStorageServices.saveToLocalStorage('required', !checkboxMarked);
+      }}
+    />
     <SubTextWrap>A Value is required</SubTextWrap>
   </Wrap>
 );

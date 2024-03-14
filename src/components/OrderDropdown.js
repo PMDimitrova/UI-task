@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import { useState } from 'react';
 
+import localStorageServices from '../utils/localStorageHandler';
+
 //this would be best to be in a separate file with other enums
 const orderOfChoicesOptions = {
   AZ: 'Alphabetical order',
@@ -13,6 +15,7 @@ const OrderDropdown = ({ orderOfChoices, setOrderOfChoices }) => {
 
   const onOptionClick = option => {
     setOrderOfChoices(option);
+    localStorageServices.saveToLocalStorage('displayOrder', option);
     setShowOptions(false);
   };
 

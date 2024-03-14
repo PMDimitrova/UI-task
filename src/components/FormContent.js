@@ -3,14 +3,15 @@ import styled from 'styled-components';
 import { useEffect } from 'react';
 import { useState } from 'react';
 
+import localStorageServices from '../utils/localStorageHandler';
 import TypeFieldContent from './TypeFieldContent';
+import makePostRequest from '../utils/services';
 import OrderDropdown from './OrderDropdown';
-import makePostRequest from '../services';
 import ChoicesArea from './ChoicesArea';
 import FormLine from './FormLine';
 import Input from './Input';
 
-// TODO: Add Global State, so that we can avoid prop drilling; although it's not present at the moment
+// TODO: Add Global State Manager, so that we can avoid prop drilling; although it's not present at the moment
 
 const orderOfChoicesOptions = {
   AZ: 'Alphabetical order',
@@ -23,6 +24,8 @@ const FormContent = () => {
   const [checkboxMarked, setCheckboxMarked] = useState(false);
   const [orderOfChoices, setOrderOfChoices] = useState(orderOfChoicesOptions.user);
   const [shouldRetriggerOrder, setShouldRetriggerOrder] = useState(false);
+  const [storedLabel, setStoredLabel] = useState(undefined);
+  const [storedDefaultValue, setStoredDefaultValue] = useState(undefined);
 
   const onFormSubmit = ({ formLabelField, defaultValueField }) => {
     if (!choices.includes(defaultValueField)) {
@@ -35,9 +38,9 @@ const FormContent = () => {
     const dataForSending = {
       label: formLabelField,
       required: checkboxMarked,
+      default: defaultValueField,
       choices: [...choices],
       displayAlpha: shouldDisplayOptionsAlphabetically,
-      default: defaultValueField,
     };
 
     console.log('dataForSending: ', dataForSending);
@@ -47,6 +50,7 @@ const FormContent = () => {
 
   const clearOptions = () => {
     setChoices([]);
+    localStorageServices.clearLocalStorage();
   };
 
   useEffect(() => {
@@ -62,9 +66,32 @@ const FormContent = () => {
       }
 
       setChoices([...newOrderedOptions]);
+      localStorageServices.saveToLocalStorage('choices', [...newOrderedOptions]);
       setShouldRetriggerOrder(false);
     }
   }, [orderOfChoices, shouldRetriggerOrder]);
+
+  useEffect(() => {
+    const storedLabel = localStorageServices.getFromLocalStorageData('label');
+    setStoredLabel(storedLabel);
+
+    const storedRequiredCheckboxValue = localStorageServices.getFromLocalStorageData('required');
+    setCheckboxMarked(storedRequiredCheckboxValue === 'true' ? true : false);
+
+    const storedDefaultValue = localStorageServices.getFromLocalStorageData('default');
+    setStoredDefaultValue(storedDefaultValue);
+
+    const storedChoices = localStorageServices.getFromLocalStorageData('choices');
+    if (storedChoices) {
+      const choicesToShow = storedChoices.split(',');
+      setChoices(choicesToShow);
+    }
+
+    const storedOrderPreference = localStorageServices.getFromLocalStorageData('displayOrder');
+    if (storedOrderPreference) {
+      setOrderOfChoices(storedOrderPreference);
+    }
+  }, []);
 
   return (
     <Wrap>
@@ -97,7 +124,9 @@ const FormContent = () => {
                         shouldStretchHorizontally
                         finalFormProps={{
                           ...input,
+                          preSavedValue: storedLabel,
                           onChange: e => {
+                            localStorageServices.saveToLocalStorage('label', e.target.value.trim());
                             input.onChange(e);
                           },
                         }}
@@ -125,8 +154,10 @@ const FormContent = () => {
                         shouldStretchHorizontally
                         finalFormProps={{
                           ...input,
+                          preSavedValue: storedDefaultValue,
                           onChange: e => {
                             input.onChange(e);
+                            localStorageServices.saveToLocalStorage('default', e.target.value.trim());
                           },
                         }}
                       />

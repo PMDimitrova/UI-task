@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { useState } from 'react';
 
+import localStorageServices from '../utils/localStorageHandler';
 import Input from './Input';
 
 // BONUS: The database that stores this does not allow individual choices in the list of choices to be longer than 40 characters. Add client-side validation such that excess characters are visually distinct if the choice is longer than 40 characters. I.e., if a user enters the word that is longer than 40 characters, the characters above 40 would be highlighted in red.
@@ -23,7 +24,11 @@ const ChoicesArea = ({ choices, setChoices, setShouldRetriggerOrder }) => {
       setShouldShowFullError(true);
     } else {
       if (!choices.includes(typingChoice) && typingChoice.trim()) {
-        setChoices([...choices, typingChoice.trim()]);
+        const newChoices = [...choices, typingChoice.trim()];
+
+        setChoices(newChoices);
+        localStorageServices.saveToLocalStorage('choices', newChoices);
+
         setTypingChoice('');
         setShouldRetriggerOrder(true); //this would make the new entry to fall into the right place, if an order is chosen
       } else {
@@ -38,6 +43,7 @@ const ChoicesArea = ({ choices, setChoices, setShouldRetriggerOrder }) => {
     const newChoices = [...choices];
     newChoices.splice(indexToRemove, 1);
     setChoices([...newChoices]);
+    localStorageServices.saveToLocalStorage('choices', [...newChoices]);
   };
 
   return (
